@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+
+    <title>Chat</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link href="{{ url_for('static' filename = 'css/style.css')}}" rel = "stylesheet">
+
+
+    <style>
+    body{
+    			background-image:url(https://images.educamaisbrasil.com.br/content/superior/instituicao/logo/g/unifeg-guaxupe.png);
+    			background-attachment:fixed;
+    			background-size:100%;
+    			background-repeat:no-repeat;
+    			background-color:#000
+    		}
+    * {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    section#home{
+      display: grid;
+      height: 100vh;
+      align-items: center;
+      text-align: center;
+    }
+    section#batepapo{
+      display: none;
+      grid-template-rows: 1fr min-content;
+      height: 100vh;
+    }
+    section#batepapo form{
+      display: grid;
+      grid-template-columns: 1fr min-content;
+      padding: 10px;
+      background: #76ed3b;
+    }
+    section#batepapo form input{
+      padding: 5px;
+    }
+    section#batepapo form button{
+      padding: 5px 15px;
+    }
+    div#mensagens{
+      overflow: auto;
+      word-wrap: break-word;
+    }
+    div#mensagens p{
+      margin: 5px;
+      padding: 10px;
+      background: #24a6f2;
+      border-radius: 10px;
+
+    }
+    </style>
+  </head>
+  <body>
+    <section id="home">
+      <form>
+        <label>Seu nome:
+          <input id ="nome"  placeholder="Digite seu nome" required/></label>
+        <button>Entrar!</button>
+      </form>
+    </section>
+    <section id="batepapo">
+      <div id="mensagens">
+      </div>
+      <form>
+        <input id="mensagem"placeholder="Digite a sua mensagem" required><button>Enviar</button>
+      </form>
+    </section>
+  </body>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+  <script>
+  var inome=document.querySelector('#nome');
+  var imensagem=document.querySelector('#mensagem');
+  var homeform=document.querySelector('#home form');
+  var chatform=document.querySelector('#batepapo form');
+  var msgdiv=document.querySelector('#mensagens');
+  var socket = io.connect('//' + document.domain + ':' + location.port);
+
+  function messagehtml(name,msg){
+    return '<p><strong>'+name+':</strong> '+msg+'</p>';
+  }
+
+  socket.on('message', function(data) {
+    msgdiv.innerHTML+=messagehtml(data.name,data.message);
+  });
+
+
+  homeform.addEventListener('submit',function(ev){
+    document.querySelector('#home').style.display='none';
+    document.querySelector('#batepapo').style.display='grid';
+    ev.preventDefault();
+  });
+  chatform.addEventListener('submit',function(ev){
+    socket.emit('message',{
+      name:inome.value,
+      message:imensagem.value
+    });
+    ev.preventDefault();
+  });
+
+
+
+  </script>
+</html>
